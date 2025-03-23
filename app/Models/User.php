@@ -48,10 +48,11 @@ class User extends Authenticatable
     public function answers(){
         return $this->hasMany(Answer::class);
     }
-    public function communties(){
-        return $this->belongsToMany(Community::class);
+    public function communities() {
+        return $this->belongsToMany(Community::class)->withPivot('isadmin');
     }
+
     public function myCommunties(){
-        return $this->belongsToMany(Community::class)->withPivotValue('isadmin',True);
+        return $this->belongsToMany(Community::class)->withPivot('isadmin')->wherePivot('isadmin', true);
     }
 }
