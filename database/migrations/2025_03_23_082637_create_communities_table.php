@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('communities', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->unsignedBigInteger('size');
+            $table->unsignedBigInteger('size'); //size of what exactly?
             $table->timestamps();
         });
         Schema::create('community_user', function (Blueprint $table) {

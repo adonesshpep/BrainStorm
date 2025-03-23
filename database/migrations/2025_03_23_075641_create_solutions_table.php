@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('solutions', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Puzzle::class);
-            $table->text('value');
+            $table->json('value');
             $table->boolean('iscorrect');
             $table->timestamps();
         });

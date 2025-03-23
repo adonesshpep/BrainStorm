@@ -24,6 +24,9 @@ return new class extends Migration
             $table->foreignIdFor(Community::class);
             $table->timestamps();
         });
+        /**
+         *! why there's a community for each category (or vice versa)?
+         */
     }
 
     /**
