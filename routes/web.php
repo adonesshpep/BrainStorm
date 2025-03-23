@@ -21,7 +21,7 @@ Route::get('/', function () {
 Route::get('dashboard',function(){
     $users=User::all();
     return view('dashboard.index',['users'=>$users]);
-})->middleware('auth');
+})->middleware('auth')->can('isadmin');
 Route::get('dashboard/login',[SessionController::class,'create'])->name('login');
 Route::post('dashboard/login',[SessionController::class,'store']);
 Route::post('dashboard/logout',[SessionController::class,'destroy']);
