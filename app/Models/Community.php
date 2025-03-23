@@ -9,6 +9,13 @@ class Community extends Model
 {
     use HasFactory;
     public function users(){
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class)->withPivotValue('isadmin',False);
     }
+    public function admins(){
+        return $this->belongsToMany(User::class)->withPivotValue('isadmin',True); 
+    }
+    public function categories(){
+        return $this->belongsToMany(Category::class);
+    }
+    
 }

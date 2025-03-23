@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->foreignIdFor(User::class);
             $table->text('question');
+            $table->timestamps();
         });
     }
 
