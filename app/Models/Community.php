@@ -8,14 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Community extends Model
 {
     use HasFactory;
-    public function users(){
-        return $this->belongsToMany(User::class)->withPivotValue('isadmin',False);
+
+    public function users() {
+        return $this->belongsToMany(User::class)->withPivot('isadmin');
     }
-    public function admins(){
-        return $this->belongsToMany(User::class)->withPivotValue('isadmin',True); 
+
+    public function admins() {
+        return $this->belongsToMany(User::class)
+                    ->withPivot('isadmin')
+                    ->wherePivot('isadmin', true);
     }
-    public function categories(){
+
+    public function categories() {
         return $this->belongsToMany(Category::class);
     }
-    
 }
