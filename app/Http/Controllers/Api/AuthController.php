@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -15,35 +15,53 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'username'=> 'required|string|max:255|unique:users,username'
+            'name'=> 'required|string|max:255|unique:users,name',
+            'isadmin'=>'required|boolean'
         ]);
 
         $user = User::create([
-            'username' => $request->username,
+            'name' => $request->name,
             'email' => $request->email,
             'password'=> Hash::make($request->password),
+            'isadmin'=>$request->isadmin
         ]);
 
         return response()->json([
             'message' => 'user instance has been created successfully',
+            'user'=>$user,
             'token' => $user->createToken('mobile-app')->plainTextToken
         ]);
     }
     public function login(Request $request){
+        // $request->validate([
+        //     'email' => 'required|string|email|max:255',
+        //     'password'=> 'required|string|min:8'
+        // ]);
+        // $user = User::Where('email', $request->email)->first();
+
+        // if (!$user || !Hash::check($request->password, $user->password)) {
+        //     throw ValidationException::withMessages([
+        //         'email' => ['The provided credentials are incorrect.'],
+        //     ]);
+        // }
+
+        // return response()->json([
+        //     'token' => $user->createToken('mobile-app')->plainTextToken
+        // ]);
         $request->validate([
-            'email' => 'required|string|email|max:255',
-            'password'=> 'required|string|min:8'
+            'email'=>'email|exists:users,email|required',
+            'password'=>'required'
         ]);
-        $user = User::Where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        $user=User::where('email',$request->email)->first();
+        if(!$user || !Hash::check($request->password,$user->password)){
+            return [
+                'message'=>'wrong stuff'
+            ];
         }
-
+        $token=$user->createToken($user->name);
         return response()->json([
-            'token' => $user->createToken('mobile-app')->plainTextToken
+            'user'=>$user,
+            'token'=>$token->plainTextToken
         ]);
     }
 
