@@ -1,5 +1,5 @@
 <x-layout>
-    <form method="POST" action="/dashboard/login" enctype="multipart/form-data">
+    <form method="POST" action="/login" enctype="multipart/form-data">
         @csrf
         <div class="space-y-12">
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">

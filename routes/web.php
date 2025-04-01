@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SessionController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +16,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-Route::get('dashboard',function(){
-    $users=User::all();
-    return view('dashboard.index',['users'=>$users]);
-})->middleware('auth')->can('isadmin');
-Route::get('dashboard/login',[SessionController::class,'create'])->name('login');
-Route::post('dashboard/login',[SessionController::class,'store']);
-Route::post('dashboard/logout',[SessionController::class,'destroy']);
+Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->can('isadmin');
+Route::get('/dashboard/{user}', [DashboardController::class,'show'])->middleware('auth')->can('isadmin');
+Route::delete('/dashboard/{user}', [DashboardController::class,'destroy'])->middleware('auth')->can('isadmin');
+Route::get('/login',[SessionController::class,'create'])->name('login');
+Route::post('/login',[SessionController::class,'store']);
+Route::post('/logout',[SessionController::class,'destroy']);
