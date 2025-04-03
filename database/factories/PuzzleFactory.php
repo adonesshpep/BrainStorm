@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,6 +21,7 @@ class PuzzleFactory extends Factory
         return [
             'title'=>'anything',
             'question'=>'alsoAnything',
+            'category_id'=>Category::factory(),
             'user_id'=>User::factory()
         ];
     }

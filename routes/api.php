@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PuzzleController;
+use App\Http\Controllers\Api\SolutionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::apiResource('puzzle', PuzzleController::class)->except(['index', 'show'])->middleware('auth:sanctum');
 Route::apiResource('puzzle', PuzzleController::class)->only(['index', 'show']);
+// Route::apiResource('solution',SolutionController::class);
+Route::post('/solution',[SolutionController::class,'store'])->middleware('auth:sanctum');
+Route::get('/solution/show/{id}',[SolutionController::class,'showForPuzzle']);

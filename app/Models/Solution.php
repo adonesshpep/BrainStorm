@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Solution extends Model
 {
     use HasFactory;
+    protected $guarded=[];
     public function puzzle(){
         return $this->belongsTo(Puzzle::class);
     }
