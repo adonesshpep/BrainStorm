@@ -23,12 +23,11 @@ class PuzzleController extends Controller
             'question'=>'required',
             'category_id'=>'required'
         ]);
-        return $request->user();
-        // $puzzle=$request->user()->puzzles()->create($atts);
-        // return response()->json([
-        //     'message'=>'created',
-        //     'puzzle'=>PuzzleResource::make($puzzle)
-        // ]);
+        $puzzle=$request->user()->puzzles()->create($atts);
+        return response()->json([
+            'message'=>'created',
+            'puzzle'=>PuzzleResource::make($puzzle)
+        ]);
     }
     public function destroy(Puzzle $puzzle){
         Gate::authorize('modify',$puzzle);
