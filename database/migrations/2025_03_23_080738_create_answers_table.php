@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Puzzle::class);
             $table->foreignIdFor(Solution::class)->nullable();
-            $table->json('json_answer')->nullable();
+            $table->string('answer')->nullable();
             $table->boolean('iscorrect');
             $table->timestamps();
         });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PuzzleController;
 use App\Http\Controllers\Api\SolutionController;
@@ -28,3 +29,5 @@ Route::apiResource('puzzle', PuzzleController::class)->only(['index', 'show']);
 // Route::apiResource('solution',SolutionController::class);
 Route::post('/solution',[SolutionController::class,'store'])->middleware('auth:sanctum');
 Route::get('/solution/show/{id}',[SolutionController::class,'showForPuzzle']);
+Route::post('/answer',[AnswerController::class,'store'])->middleware('auth:sanctum');
+Route::get('/answers',[AnswerController::class,'showMine'])->middleware('auth:sanctum');
