@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Category::class);
-            $table->json('question');
+            $table->string('question');
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PuzzleResource;
+use App\Models\Category;
 use App\Models\Puzzle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -20,11 +21,12 @@ class PuzzleController extends Controller
         $atts=$request->validate([
             'title'=>'required',
             'question'=>'required',
+            'category_id'=>'required'
         ]);
         $puzzle=$request->user()->puzzles()->create($atts);
         return response()->json([
             'message'=>'created',
-            'puzzle'=>$puzzle
+            'puzzle'=>PuzzleResource::make($puzzle)
         ]);
     }
     public function destroy(Puzzle $puzzle){
