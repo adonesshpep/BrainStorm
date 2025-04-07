@@ -1,7 +1,10 @@
 <x-layout>
+    <x-slot:header>
+        Login
+    </x-slot:header>
     <form method="POST" action="/login" enctype="multipart/form-data">
         @csrf
-        <div class="space-y-12">
+        <div class="space-y-12 p-6">
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <x-form-field>
                     <x-form-label for='email'>Email Address</x-form-label>
