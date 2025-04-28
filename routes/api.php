@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/verifyemail',[AuthController::class, 'userActivation'])->middleware('auth:sanctum');
 Route::apiResource('puzzle', PuzzleController::class)->except(['index', 'show'])->middleware('auth:sanctum');
 Route::apiResource('puzzle', PuzzleController::class)->only(['index', 'show']);
 // Route::apiResource('solution',SolutionController::class);
