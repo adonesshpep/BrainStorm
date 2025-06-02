@@ -28,6 +28,7 @@ class AuthController extends Controller
             'password'=> Hash::make($request->password),
             'isadmin'=>$request->isadmin
         ]);
+        //i think it should an event
         $token=rand(1000,9999);
         $verify=new VerifyE();
         $verify->token=$token;
@@ -79,6 +80,7 @@ class AuthController extends Controller
         if($verify_token){
         $email = $verify_token->email;
         $user = $request->user();
+            //instade i think that should be a policy
             if($email === $user->email){
             $user->is_activated=1;
             $user->email_verified_at=now();

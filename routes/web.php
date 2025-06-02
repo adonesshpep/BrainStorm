@@ -3,6 +3,7 @@
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\DeepseekController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 

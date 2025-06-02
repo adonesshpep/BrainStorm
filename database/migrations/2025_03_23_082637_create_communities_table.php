@@ -14,16 +14,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('communities', function (Blueprint $table) {
-            $table->id();
-            $table->string('type');
-            $table->unsignedBigInteger('size'); //size of what exactly?
+            $table->string('id',12)->primary();
+            $table->string('name')->unique();
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('size')->default(false);
+            $table->foreignIdFor(User::class,'admin_id')->constrained('users')->onDelete('cascade');
+            $table->boolean('private')->default(false);
+            $table->boolean('joining_requires_admin_approval')->default(false);
+            $table->boolean('puzzles_require_admin_approval')->default(false);
+            $table->boolean('only_admin_can_post')->default(false);
             $table->timestamps();
         });
         Schema::create('community_user', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Community::class);
-            $table->boolean('isadmin');
             $table->timestamps();
         });
     }

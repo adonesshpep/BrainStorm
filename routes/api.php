@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PuzzleController;
 use App\Http\Controllers\Api\SolutionController;
+use App\Http\Controllers\DeepseekController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,10 +28,19 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/verifyemail',[AuthController::class, 'userActivation'])->middleware('auth:sanctum');
-Route::apiResource('puzzle', PuzzleController::class)->except(['index', 'show'])->middleware('auth:sanctum');
-Route::apiResource('puzzle', PuzzleController::class)->only(['index', 'show']);
+Route::apiResource('puzzle', PuzzleController::class)->middleware('auth:sanctum');
+Route::get('/communitypuzzles/{id}',[PuzzleController::class,'getCommunityPuzzles'])->middleware('auth:sanctum');
+Route::post('/vote',[PuzzleController::class, 'arrowMoidify'])->middleware('auth:sanctum')->middleware(['throttle:5,1']);
+// Route::get('/puzzlevotes/{id}',[PuzzleController::class,'getVotes']);
 // Route::apiResource('solution',SolutionController::class);
 Route::post('/solution',[SolutionController::class,'store'])->middleware('auth:sanctum');
 Route::get('/solution/show/{id}',[SolutionController::class,'showForPuzzle']);
 Route::post('/answer',[AnswerController::class,'store'])->middleware('auth:sanctum');
 Route::get('/answers',[AnswerController::class,'showMine'])->middleware('auth:sanctum');
+Route::post('/follow/{id}',[FollowController::class, 'follow'])->middleware('auth:sanctum');
+Route::post('/unfollow/{id}',[FollowController::class,'unfollow'])->middleware('auth:sanctum');
+Route::get('/myfollowers',[FollowController::class,'myFollowers'])->middleware('auth:sanctum');
+Route::get('/myfollowings',[FollowController::class,'myFollowings'])->middleware('auth:sanctum');
+Route::post('/star/{id}',[CategoryController::class,'star'])->middleware('auth:sanctum');
+Route::post('/unstar/{id}',[CategoryController::class,'unstar'])->middleware('auth:sanctum');
+Route::get('/starcategories',[CategoryController::class, 'myStaredCategories'])->middleware('auth:sanctum');

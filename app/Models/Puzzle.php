@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Puzzle extends Model
 {
     use HasFactory;
-    protected $guarded=[];
+    protected $guarded=['votes_up','votes_down'];
     public function user(){
         return $this->belongsTo(User::class);
     }

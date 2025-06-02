@@ -28,4 +28,25 @@ class CategoryController extends Controller
         }
         return new CategoryResource($category);
     }
+    public function star(Request $request,$id){
+        $category=Category::findOrFail($id);
+        if(!$request->user()->staredCategories()->where('category_id',$id)->exists()){
+            $request->user()->staredCategories()->attach($category);
+            return response()->json(['message'=>'category stared']);
+        }else{
+            return response()->json(['message' => 'you cannot star the same category twice'],400);
+        }
+    }
+    public function unstar(Request $request,$id){
+        $category = Category::findOrFail($id);
+        if($request->user()->staredCategories()->where('category_id', $id)->exists()){
+            $request->user()->staredCategories()->detach($category);
+            return response()->json(['message' => 'category unstared']);
+        }else{
+            return response()->json(['message' => 'you cannot unstar a category you didnt star'],400);
+        }
+    }
+    public function myStaredCategories(Request $request){
+        return CategoryResource::collection($request->user()->staredCategories);
+    }
 }
