@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\JoinRequestSubmitted;
 use App\Http\Resources\UserResource;
 use App\Models\Community;
 use App\Models\User;
@@ -21,6 +22,7 @@ class CommunityController extends Controller
                 return response()->json(['message' => 'Sorry, you cannot try again until the admin takes action'], 400);
             }else{
                 $request->user()->joinRequests()->attach($community);
+                JoinRequestSubmitted::dispatch($request->user(),$community);
                 return response()->json(['message'=>'your request is submitted'],200);
             }
         }else{

@@ -22,7 +22,7 @@ class SolutionController extends Controller
         ]);
         $puzzle=Puzzle::find($request->puzzle_id);
         //Gate::authorize('add',$puzzle);  i didn't get it
-        Gate::authorize('modify',$puzzle);
+        $this->authorize('modify',$puzzle);
         // $request->user()->puzzles()->first()->solutions()->crreate($atts);
         $solution=Solution::create($atts);
         if($solution->iscorrect==1){

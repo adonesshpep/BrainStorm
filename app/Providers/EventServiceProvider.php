@@ -2,8 +2,16 @@
 
 namespace App\Providers;
 
+use App\Events\JoinRequestSubmitted;
 use App\Events\NewPuzzleCreated;
+use App\Events\PuzzleGetVoted;
+use App\Events\PuzzlePendingEvent;
+use App\Events\PuzzlePlayed;
 use App\Listeners\AiCheckNotification;
+use App\Listeners\HandlePuzzlePlayed;
+use App\Listeners\NotifyAdminAboutJoinRequest;
+use App\Listeners\NotifyAdminForPuzzle;
+use App\Listeners\NotifyCreatorOnPuzzleVote;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +30,18 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\NewPuzzleCreated::class=>[
             \App\Listeners\AiCheckNotification::class,
+        ],
+        PuzzlePendingEvent::class=>[
+            NotifyAdminForPuzzle::class,
+        ],
+        JoinRequestSubmitted::class=>[
+            NotifyAdminAboutJoinRequest::class,
+        ],
+        PuzzleGetVoted::class=>[
+            NotifyCreatorOnPuzzleVote::class,
+        ],
+        PuzzlePlayed::class=>[
+            HandlePuzzlePlayed::class,
         ],
     ];
 

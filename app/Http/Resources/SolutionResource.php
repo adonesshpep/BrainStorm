@@ -18,7 +18,6 @@ class SolutionResource extends JsonResource
             'id'=>$this->id,
             'puzzle_id'=>$this->puzzle_id,
             'value'=>$this->value,
-            'iscorrect'=>$this->iscorrect
         ];
     }
 }

@@ -22,8 +22,8 @@ return new class extends Migration
             $table->foreignIdFor(Community::class)->nullable();
             $table->index('community_id');
             $table->string('question');
-            $table->boolean('status')->default(0);
-            $table->string('level');
+            $table->boolean('status')->default(false);
+            $table->integer('level')->check('level IN (0, 1, 2)');
             $table->integer('votes_up')->default(0);
             $table->integer('votes_down')->default(0);
             $table->timestamps();
