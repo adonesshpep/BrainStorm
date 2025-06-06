@@ -18,12 +18,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PuzzleController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = $request->user()->id; // Get authenticated user ID
+        $userId = $request->user()->id;
         $isNewUser = Answer::where('user_id', $userId)->count() === 0;
         if ($isNewUser) {
             $trendingPuzzles = Puzzle::whereNull('community_id')->orderByDesc(DB::raw('votes_up - votes_down'))->take(10)->get();
@@ -68,7 +69,7 @@ class PuzzleController extends Controller
             return response()->json(['message' => 'you are not in this community']);
         }
     }
-    public function storeToCommunity(Request $request, $id)
+    public function storeToCommunity(Request $request)
     {
         $atts = $request->validate([
             'question' => 'required|string|max:255',
@@ -76,22 +77,28 @@ class PuzzleController extends Controller
             'level' => 'required|integer|in:0,1,2',
             'category_id' => 'nullable|exists:categories,id',
             'community_id' => 'required|exists:communities,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        $community = Community::findOrFail($id);
+        $community = Community::findOrFail($atts['community_id']);
         if (!$request->user()->communities()->where('community_id', $community->id)->exists()) {
-            return response()->json(['message' => 'Sorry,you are not in this community', 403]);
+            return response()->json(['message' => 'Sorry,you are not in this community'],403);
         }
         if ($community->only_admin_can_post && $request->user()->id !== $community->admin_id) {
-            return response()->json(['message' => 'Sorry,only admin can post here'], 400);
+            return response()->json(['message' => 'Sorry,only admin can post here'] ,400);
+        }
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('puzzles', 'public');
+            $atts['image_path'] = $imagePath;
         }
         $response = DB::transaction(
             function () use ($community, $atts, $request) {
                 $puzzle = $community->puzzles()->create([
                     'user_id' => $request->user()->id,
-                    'category_id' => $atts['category_id'],
+                    'category_id' => $atts['category_id']??null,
                     'level' => $atts['level'],
                     'question' => $atts['question'],
                     'title' => $atts['title'],
+                    'image_path'=>$atts['image_path'],
                     'status'=>!($community->puzzles_require_admin_approval && $request->user()->id !== $community->admin_id)
                 ]);
                 if ($puzzle->status){
@@ -105,8 +112,15 @@ class PuzzleController extends Controller
         );
         return response()->json($response);
     }
-    public function show(Puzzle $puzzle)
+    public function show(Request $request,Puzzle $puzzle)
     {
+        if($puzzle->community_id){
+            if(!$request->user()->communities()->where('community_id',$puzzle->community_id)->exists()){
+                return response()->json([
+                    'message'=>'you cannot see this puzzle , your not in the community'
+                ],403);
+            }
+        }
         //the idea here if there is no solution with iscorrect==false then the type of this puzzle is input field and we dont need to return the solutions with the puzzle otherwize its options type and we need to return the solution
         $type = Solution::where('puzzle_id', $puzzle->id)->where('iscorrect', false)->exists();
         if(!$type){
@@ -122,8 +136,19 @@ class PuzzleController extends Controller
             'question' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'level' => 'required|integer|in:0,1,2',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'nullable|exists:categories,id',
+            'community_id'=>'nullable|exists:communities,id'
         ]);
+        if(isset($atts['community_id'])){
+            return response()->json([
+                'message'=>'community puzzles handled in another function'
+            ],403);
+        }
+        if($request->hasFile('image')){
+            $imagePath=$request->file('image')->store('puzzles','public');
+            $atts['image_path']=$imagePath;
+        }
         $puzzle = $request->user()->puzzles()->create($atts);
         //Note : the status in the feed puzzles refer to ai validation and in the community puzzles refer to admin approval
         return response()->json([
@@ -134,6 +159,12 @@ class PuzzleController extends Controller
     public function destroy(Puzzle $puzzle)
     {
         $this->authorize('modify', $puzzle);
+        if (Storage::disk('public')->exists($puzzle->image_path)) {
+            Storage::disk('public')->delete($puzzle->image_path);
+        } else {
+            Log::error('File not found:', ['path' => $puzzle->image_path]);
+        }
+
         $puzzle->delete();
         return response()->json([
             'message' => 'deleted'
@@ -204,10 +235,10 @@ class PuzzleController extends Controller
         $puzzle->update(['status' => $atts['response']]);
         return ($atts['response'])?response()->json(['message' => 'puzzle has been accepted']): response()->json(['message' => 'puzzle has been rejected']);
     }
-    // public function getVotes($id){
-    //     $puzzle=Puzzle::findOrFail($id);
-    //     return response()->json(['votes_up'=>$puzzle->votes_up,'votes_down'=>$puzzle->votes_down]);
-    // }
+    public function getVotes($id){
+        $puzzle=Puzzle::findOrFail($id);
+        return response()->json(['votes_up'=>$puzzle->votes_up,'votes_down'=>$puzzle->votes_down]);
+    }
 
     // public function update(Request $request,Puzzle $puzzle){
     //     Gate::authorize('modify', $puzzle);

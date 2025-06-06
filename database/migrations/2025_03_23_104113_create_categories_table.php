@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('avatar_id')->default(1);
             $table->timestamps();
         });
         Schema::create('category_community', function (Blueprint $table) {

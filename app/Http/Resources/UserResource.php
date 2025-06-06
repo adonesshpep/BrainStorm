@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class UserResource extends JsonResource
 {
@@ -14,11 +15,13 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $avatars = config('avatars.default');
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'overall_score' => $this->overall_score
+            'overall_score' => $this->overall_score,
+            'avatar_url'=>Storage::url($avatars[$this->avatar_id]??$avatars[1])
         ];
     }
 }

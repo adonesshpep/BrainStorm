@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Community extends Model
 {
     use HasFactory;
+    protected $guarded=[];
 
     public function users() {
         return $this->belongsToMany(User::class);
@@ -19,7 +20,7 @@ class Community extends Model
     //                 ->wherePivot('isadmin', true);
     // }
     public function puzzles(){
-        return $this->hasMany(Community::class);
+        return $this->hasMany(Puzzle::class);
     }
     public function categories() {
         return $this->belongsToMany(Category::class);

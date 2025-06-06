@@ -8,8 +8,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
-{
-    /**
+{    /**
      * Display a listing of the resource.
      */
     public function index()
@@ -45,6 +44,17 @@ class CategoryController extends Controller
         }else{
             return response()->json(['message' => 'you cannot unstar a category you didnt star'],400);
         }
+    }
+    public function store(Request $request){
+        $atts=$request->validate([
+            'name'=>'string|max:255|unique:categories,name',
+            'avatar_id'=>'nullable|integer|min:1|max:2'
+        ]);
+        $category=Category::create($atts);
+        return response()->json([
+            'message'=>'category created',
+            'category'=>CategoryResource::make($category)
+        ]);
     }
     public function myStaredCategories(Request $request){
         return CategoryResource::collection($request->user()->staredCategories);

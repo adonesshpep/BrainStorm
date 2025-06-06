@@ -23,6 +23,7 @@ return new class extends Migration
             $table->index('community_id');
             $table->string('question');
             $table->boolean('status')->default(false);
+            $table->string('image_path')->nullable();
             $table->integer('level')->check('level IN (0, 1, 2)');
             $table->integer('votes_up')->default(0);
             $table->integer('votes_down')->default(0);

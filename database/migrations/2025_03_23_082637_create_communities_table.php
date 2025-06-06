@@ -14,8 +14,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('communities', function (Blueprint $table) {
-            $table->string('id',12)->primary();
+            $table->id();
+            $table->string('nanoid',12)->unique();
             $table->string('name')->unique();
+            $table->index('name');
+            $table->index('nanoid');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('size')->default(false);
             $table->foreignIdFor(User::class,'admin_id')->constrained('users')->onDelete('cascade');

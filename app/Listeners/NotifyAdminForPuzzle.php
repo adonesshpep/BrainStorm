@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\AdminPuzzleApprovalNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class NotifyAdminForPuzzle
 {
@@ -25,7 +26,7 @@ class NotifyAdminForPuzzle
     public function handle(PuzzlePendingEvent $event): void
     {
         $community=Community::where('id',$event->puzzle->community_id);
-        $admin=User::where('id',$community->admin)->get();
+        $admin=User::where('id',$community->admin_id)->first();
         $admin->notify(new AdminPuzzleApprovalNotification($event->puzzle));
 
     }

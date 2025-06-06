@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Events\JoinRequestSubmitted;
 use App\Http\Resources\UserResource;
 use App\Models\Community;
@@ -36,20 +37,24 @@ class CommunityController extends Controller
         $atts=$request->validate([
             'name'=>'required|string|max:255|unique:communities,name',
             'description'=>'nullable|string|max:1000',
-            'private'=>'boolean',
-            'joining_requires_admin_approval'=>'boolean',
-            'puzzles_require_admin_approval'=>'boolean',
-            'only_admin_can_post'=>'boolean'
+            'private'=>'nullable|boolean',
+            'joining_requires_admin_approval'=>'nullable|boolean',
+            'puzzles_require_admin_approval'=>'nullable|boolean',
+            'only_admin_can_post'=>'nullable|boolean'
         ]);
         $client=new Client();
-        $nanoId=$client->generateId(12);
+        do {
+            $nanoId = $client->generateId(12);
+        } while (Community::where('nanoid', $nanoId)->exists());
+
         $community=Community::create([
-            'id'=>$nanoId,
+            'nanoid'=>$nanoId,
             'name'=>$atts['name'],
             'description'=>$atts['description'] ?? '',
-            'joining_requires_admin_approval'=>$atts['joining_requires_admin_approval'],
-            'puzzles_require_admin_approval'=>$atts['puzzles_require_admin_approval'],
-            'only_admin_can_post'=>$atts['only_admin_can_post'],
+            'private'=>$atts['private']??false,
+            'joining_requires_admin_approval'=>$atts['joining_requires_admin_approval']??false,
+            'puzzles_require_admin_approval'=>$atts['puzzles_require_admin_approval']??false,
+            'only_admin_can_post'=>$atts['only_admin_can_post']??false,
             'admin_id'=>$request->user()->id,
             'size'=>1
         ]);
