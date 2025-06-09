@@ -18,11 +18,11 @@ class NewPuzzleCreated
      * Create a new event instance.
      */
     public $puzzle_id;
-    public $answer_id;
-    public function __construct($puzzle_id,$answer_id)
+    public $solutions;
+    public function __construct($puzzle_id,$solutions)
     {
         $this->puzzle_id=$puzzle_id;
-        $this->answer_id=$answer_id;
+        $this->solutions=$solutions;
     }
 
     /**

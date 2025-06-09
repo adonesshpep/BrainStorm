@@ -19,12 +19,6 @@ return new class extends Migration
             $table->integer('avatar_id')->default(1);
             $table->timestamps();
         });
-        Schema::create('category_community', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Category::class);
-            $table->foreignIdFor(Community::class);
-            $table->timestamps();
-        });
         /**
          *! why there's a community for each category (or vice versa)?
          */
@@ -36,6 +30,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('categories');
-        Schema::dropIfExists('category_community');
     }
 };

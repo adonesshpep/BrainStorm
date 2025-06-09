@@ -22,7 +22,10 @@ class CommunityController extends Controller
             if($request->user()->joinRequests()->where('community_id',$community->id)->exists()){
                 return response()->json(['message' => 'Sorry, you cannot try again until the admin takes action'], 400);
             }else{
-                $request->user()->joinRequests()->attach($community);
+                $request->user()->joinRequests()->syncWithPivotValues($community->id, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
                 JoinRequestSubmitted::dispatch($request->user(),$community);
                 return response()->json(['message'=>'your request is submitted'],200);
             }
@@ -30,7 +33,7 @@ class CommunityController extends Controller
             $request->user()->communities()->attach($community);
             $community->size+=1;
             $community->save();
-            return response()->json(['message'=> 'you are in the community'], 200);
+            return response()->json(['message'=> 'Congrats,you are in the community'], 200);
         }
     }
     public function store(Request $request){
@@ -40,7 +43,9 @@ class CommunityController extends Controller
             'private'=>'nullable|boolean',
             'joining_requires_admin_approval'=>'nullable|boolean',
             'puzzles_require_admin_approval'=>'nullable|boolean',
-            'only_admin_can_post'=>'nullable|boolean'
+            'only_admin_can_post'=>'nullable|boolean',
+            'category_ids'=>'nullable|array',
+            'category_ids.*'=>'exists:categories,id'
         ]);
         $client=new Client();
         do {
@@ -59,13 +64,24 @@ class CommunityController extends Controller
             'size'=>1
         ]);
         $community->users()->attach($request->user()->id);
+        if(isset($atts['category_ids'])){
+            if(!in_array(1,$atts['category_ids'])){
+                $atts['category_ids'][]=1;
+            }
+            $community->categories()->attach($atts['category_ids']);
+        }else{
+            $community->categories()->attach(1);
+        }
         return response()->json(['message' => 'Community created successfully!', 'community' => $community], 201);
     }
     public function leave(Request $request,$id){
         $community=Community::findOrFail($id);
         if(!$request->user()->communities()->where('community_id',$community->id)->exists()){
-            return response()->json(['message'=>'you are not in this community in the first place']);
-        }else{
+            return response()->json(['message'=>'you are not in this community in the first place'],400);
+        }elseif($request->user()->id===$community->admin_id){
+            return response()->json(['message'=>'you are the admin you cannot leave the community you can deleted instade'],400);
+        }
+        else{
             $request->user()->communities()->detach($community);
             $community->size = max(1, $community->size - 1);
             $community->save();
@@ -84,28 +100,58 @@ class CommunityController extends Controller
             return response()->json(['message' => 'User did not submit a request'], 400);
         }
         if(!$atts['response']){
-            $joinRequest->detach();
+            $community->joinRequests()->detach($joinRequest);
             return response()->json(['message'=>'request was denied']);
         }else{
             $community->users()->attach($request->requester_id);
-            $joinRequest->detach();
+            $community->joinRequests()->detach($joinRequest);
             return response()->json(['message'=>'request was approved']);
         }
     }
     public function destroy(Request $request,$id){
-        $community=Community::finOrFail($id);
+        $community=Community::findOrFail($id);
         $this->authorize('manage',$community);
-        $community->joinRequests()->detach();
-        $community->users()->detach();
-        $community->categories()->detach();
-        $community->puzzles()->delete();
+        //just added cascade instade
+        // $community->joinRequests()->detach();
+        // $community->users()->detach();
+        // $community->categories()->detach();
+        // $community->puzzles()->delete();
         $community->delete();
         return response()->json(['message' => 'Community successfully deleted'], 200);
     }
     public function getJoinRequests(Request $request,$id){
         $community=Community::findOrFail($id);
         $this->authorize('manage',$community);
-        $users=$community->joinRequests()->orderBy('created_at', 'desc')->get();
+        $users=$community->joinRequests()->orderBy('created_at','desc')->get();
         return UserResource::collection($users);
+        }
+        public function update(Request $request,$id){
+        $atts = $request->validate([
+            'name' => 'nullable|string|max:255|unique:communities,name',
+            'description' => 'nullable|string|max:1000',
+            'private' => 'nullable|boolean',
+            'joining_requires_admin_approval' => 'nullable|boolean',
+            'puzzles_require_admin_approval' => 'nullable|boolean',
+            'only_admin_can_post' => 'nullable|boolean',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id'
+        ]);
+        $community=Community::findOrFail($id);
+        $this->authorize('manage',$community);
+        if(isset($atts['category_ids'])){
+            if (!in_array(1, $atts['category_ids'])) {
+                $atts['category_ids'][] = 1;
+            }
+        $community->categories()->sync($atts['category_ids']);
+        }
+        $community->update([
+            'name'=>$atts['name']??$community->name,
+            'description'=>$atts['description']??$community->description?:'No Description Availabe',
+            'private'=>$atts['private']??$community->private,
+            'puzzles_require_admin_approval'=>$atts['puzzles_require_admin_approval']??$community->puzzles_require_admin_approval,
+            'only_admin_can_post'=>$atts['only_admin_can_post']??$community->only_admin_can_post,
+            'joining_requires_admin_approval'=>$atts['joining_requires_admin_approval']??$community->joining_requires_admin_approval,
+        ]);
+        return response()->json(['message'=>'community has beed updated'],200);
         }
 }

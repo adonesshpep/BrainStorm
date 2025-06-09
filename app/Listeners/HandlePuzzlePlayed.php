@@ -24,9 +24,9 @@ class HandlePuzzlePlayed
     {
         $event->creator->notify(new PuzzlePlayedNotification($event->puzzle,$event->user,$event->creator,$event->isCorrect));
         $scoreChanges = [
-            'hard' => ['gain' => 15, 'lose' => 10, 'creator' => 3],
-            'med' => ['gain' => 10, 'lose' => 5, 'creator' => 2],
-            'low' => ['gain' => 5, 'lose' => 2, 'creator' => 1],
+            0 => ['gain' => 15, 'lose' => 10, 'creator' => 3],
+            1 => ['gain' => 10, 'lose' => 5, 'creator' => 2],
+            2 => ['gain' => 5, 'lose' => 2, 'creator' => 1],
         ];
         if (!$event->puzzle->community_id) {
             if ($event->puzzle->status) {

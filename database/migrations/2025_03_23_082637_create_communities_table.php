@@ -30,9 +30,8 @@ return new class extends Migration
         });
         Schema::create('community_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Community::class);
-            $table->timestamps();
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Community::class)->constrained()->onDelete('cascade');
         });
     }
 
@@ -41,7 +40,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('communities');
         Schema::dropIfExists('community_user');
+        Schema::dropIfExists('communities');
     }
 };

@@ -31,8 +31,10 @@ class AiCheckNotification
         $deepseek = $this->deepseek;
         $puzzle = Puzzle::find($event->puzzle_id);
         $question = $puzzle->question;
-        $answer = Solution::find($event->answer_id);
-
+        $solutions = $event->solutions;
+        $aiAnswer=1;
+        $solutions = collect($solutions)->filter(fn($solution) => $solution->iscorrect)->values();
+foreach($solutions as $answer){
         $messages = [
             ['role' => 'user', 'content' => "You are an AI designed to check the correctness of answers to puzzles. 
 Here is the puzzle and the user provided answer:
@@ -46,11 +48,16 @@ Respond only with:
 
 Respond **only** with `1` if the answer is correct or `0` if the answer is incorrect. Do not add any extra text or explanations and dont send json only 1 or 0."]
         ];
+        Log::error($messages);
         $response = $deepseek->chatCompletion($messages);
-        $content = $response['choices'][0]['message']['content'] ?? null;
+        $content = ($response['choices'][0]['message']['content'] ?? 0);
         Log::error($content);
-        if ((int)$content) {
-            $puzzle->status = 1;
+        if((int)$content===0){
+            $aiAnswer=0;
+        }
+        }
+        if($aiAnswer){
+            $puzzle->status=1;
             $puzzle->save();
         }
     }

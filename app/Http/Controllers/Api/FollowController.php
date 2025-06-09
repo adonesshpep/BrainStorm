@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class FollowController extends Controller
 {
@@ -15,9 +14,8 @@ class FollowController extends Controller
         $user = User::findOrFail($id);
         //user trying to follow themself
         if ($request->user()->id == $id) {
-            abort(404, 'you cannot follow yourself');
+            return response()->json(['message'=>'you cannot follow yourself'],404);
         }
-        Log::error('jdsfh');
         //cecking if the user has already followed that one
         if (!$request->user()->following()->where('following_id', $id)->exists()) {
             $request->user()->following()->attach($user);

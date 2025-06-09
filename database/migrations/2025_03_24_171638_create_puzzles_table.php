@@ -17,9 +17,10 @@ return new class extends Migration
         Schema::create('puzzles',function(Blueprint $table){
             $table->id();
             $table->string('title');
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Category::class)->nullable();
-            $table->foreignIdFor(Community::class)->nullable();
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Category::class)->nullable()->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Community::class)->nullable()->constrained()->onDelete('cascade');
+            $table->index('category_id');
             $table->index('community_id');
             $table->string('question');
             $table->boolean('status')->default(false);

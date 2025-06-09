@@ -19,13 +19,10 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $category = Category::find($id);
-        if(!$category){
-            return response()->json(['message'=>'category not found'], 404);
-        }
-        return new CategoryResource($category);
+        $category = Category::findOrFail($id);
+        return  CategoryResource::make($category);
     }
     public function star(Request $request,$id){
         $category=Category::findOrFail($id);
@@ -47,7 +44,7 @@ class CategoryController extends Controller
     }
     public function store(Request $request){
         $atts=$request->validate([
-            'name'=>'string|max:255|unique:categories,name',
+            'name'=>'required|string|max:255|unique:categories,name',
             'avatar_id'=>'nullable|integer|min:1|max:2'
         ]);
         $category=Category::create($atts);

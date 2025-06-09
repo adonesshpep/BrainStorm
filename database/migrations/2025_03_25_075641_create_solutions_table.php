@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\Puzzle;
-use App\Models\Solution;
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,12 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('answers', function (Blueprint $table) {
+        Schema::create('solutions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Puzzle::class);
-            $table->foreignIdFor(Solution::class)->nullable();
-            $table->string('answer')->nullable();
+            $table->foreignIdFor(Puzzle::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->string('value');
             $table->boolean('iscorrect');
             $table->timestamps();
         });
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('answers');
+        Schema::dropIfExists('solutions');
     }
 };

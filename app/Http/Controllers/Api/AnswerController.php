@@ -16,25 +16,37 @@ class AnswerController extends Controller
 {
     public function showMine(Request $request)
     {
-        return AnswerResource::collection(Answer::where('user_id', $request->user()->id)->get());
+        return AnswerResource::collection($request->user()->answers);
     }
-    public function store(Request $request, $id)
+    public function store(Request $request)
     {
         $atts = $request->validate([
-            'puzzle_id' => 'required',
-            'answer' => 'nullable|string|max:255|required_without:solution_id|prohibited_with:solution_id',
-            'solution_id' => 'nullable|exists:solutions,id|required_without:answer|prohibited_with:answer',
+            'puzzle_id' => 'required|exists:puzzles,id',
+            'answer' => 'nullable|string|max:255|required_without:solution_id',
+            'solution_id' => 'nullable|exists:solutions,id|required_without:answer',
         ]);
-        $puzzle = Puzzle::findOrFail($id);
+        if(isset($atts['solution_id'])&&isset($atts['answer'])){
+            return response()->json(['message'=>'Bad Request,either submit the solution_id or the answer as texe but not both'],402);
+        }
+        $puzzle = Puzzle::findOrFail($atts['puzzle_id']);
+        if($request->user()->id===$puzzle->user_id){
+            return response()->json(['message'=>'you cannot solve your own puzzle'],403);
+        }
+        if($puzzle->community_id){
+        if(!$request->user()->communities()->where('comunity_id',$puzzle->community_id)->exists()){
+            return response()->json(['message'=>'you cannot answer a puzzle from a community you are not in'],402);
+        }
+        
+        }
         if($puzzle->answers()->where('user_id',$request->user()->id)->exists()){
             return response()->json([
                 'message'=>'you have already submitted an answer to this puzzle'
             ]);
         }
-        if($atts['solution_id']){
+        if(isset($atts['solution_id'])){
             $isCorrect=Solution::where('id',$atts['solution_id'])->value('iscorrect');
         }
-        if($atts['answer']){
+        if(isset($atts['answer'])){
             $correctSolutions=Solution::where('puzzle_id',$puzzle->id)->where('iscorrect',true)->pluck('value');
             //use similar_text
             $isCorrect=$correctSolutions->contains(fn($correctAnswer)=>levenshtein(strtolower(trim($correctAnswer)) , strtolower(trim($atts['answer'])))<=2|| (strtolower(trim($correctAnswer)) === strtolower(trim($atts['answer']))));
@@ -43,7 +55,7 @@ class AnswerController extends Controller
         $user=$request->user();
         $answer = $user->answers()->create($atts);
         $creator=User::findOrfail($puzzle->user_id);
-        PuzzlePlayed::dispatch($puzzle,$user,$creator,$answer->isccorect);
+        PuzzlePlayed::dispatch($puzzle,$user,$creator,$answer->iscorrect);
         //the same score logic below moved to listener (HandlePuzzlePlayed)
 
         // $scoreChanges = [

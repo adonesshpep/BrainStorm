@@ -14,8 +14,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('votes', function (Blueprint $table) {
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Puzzle::class);
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Puzzle::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->boolean('vote');
             $table->id();
             $table->timestamps();
