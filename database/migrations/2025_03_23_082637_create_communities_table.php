@@ -15,16 +15,23 @@ return new class extends Migration
     {
         Schema::create('communities', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
-            $table->unsignedBigInteger('size'); //size of what exactly?
+            $table->string('nanoid',12)->unique();
+            $table->string('name')->unique();
+            $table->index('name');
+            $table->index('nanoid');
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('size')->default(false);
+            $table->foreignIdFor(User::class,'admin_id')->constrained('users')->onDelete('cascade');
+            $table->boolean('private')->default(false);
+            $table->boolean('joining_requires_admin_approval')->default(false);
+            $table->boolean('puzzles_require_admin_approval')->default(false);
+            $table->boolean('only_admin_can_post')->default(false);
             $table->timestamps();
         });
         Schema::create('community_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Community::class);
-            $table->boolean('isadmin');
-            $table->timestamps();
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Community::class)->constrained()->onDelete('cascade');
         });
     }
 
@@ -33,7 +40,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('communities');
         Schema::dropIfExists('community_user');
+        Schema::dropIfExists('communities');
     }
 };

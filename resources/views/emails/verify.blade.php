@@ -8,7 +8,6 @@
 </head>
 <body>
     <h2>Hello {{$user_name}}</h2>
-    <h3>Thanks for registering in our app ❤</h3>
     <p>Here is your verification code {{$token}}</p>
 </body>
 </html>

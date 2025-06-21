@@ -10,6 +10,6 @@ class PuzzlePolicy
 {
     public function modify(User $user, Puzzle $puzzle)
     {
-        return ($user->id===$puzzle->user_id)?Response::allow():Response::deny('not authorized');
+        return ($user->id===$puzzle->user_id);
     }
 }

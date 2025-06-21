@@ -14,11 +14,16 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nanoid',12)->unique();
+            $table->string('name')->unique();
+            $table->index('name');
+            $table->index('nanoid');
+            $table->bigInteger('overall_score')->default(0);
+            $table->integer('avatar_id')->default(1);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('isadmin');
+            $table->boolean('isadmin')->default(false);
             $table->boolean('is_activated')->default(0);
             $table->rememberToken();
             $table->timestamps();

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -16,12 +17,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'isadmin'
-    ];
+    protected $guarded=[];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -32,6 +28,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
 
     /**
      * The attributes that should be cast.
@@ -54,5 +51,17 @@ class User extends Authenticatable
 
     public function myCommunties(){
         return $this->belongsToMany(Community::class)->withPivot('isadmin')->wherePivot('isadmin', true);
+    }
+    public function following(){
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id');
+    }
+    public function followers(){
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id');
+    }
+    public function staredCategories(){
+        return $this->belongsToMany(Category::class,'star_categories','user_id','category_id');
+    }
+    public function joinRequests(){
+        return $this->belongsToMany(Community::class,'community_join_requests','user_id','community_id');
     }
 }

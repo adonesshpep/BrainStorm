@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('token');
             $table->string('email');
-            $table->boolean('is_activated')->default(0);
+            $table->timestamp('expires_at')->default(now()->addHour(5));
             $table->timestamps();
         });
     }

@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\Puzzle;
-use App\Models\Solution;
+use App\Models\Community;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,22 +13,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('answers', function (Blueprint $table) {
+        Schema::create('community_join_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Puzzle::class);
-            $table->foreignIdFor(Solution::class)->nullable();
-            $table->string('answer')->nullable();
-            $table->boolean('iscorrect');
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Community::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
-    }
+    }   
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('answers');
+        Schema::dropIfExists('community_join_requests');
     }
 };

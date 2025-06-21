@@ -16,12 +16,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->timestamps();
-        });
-        Schema::create('category_community', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Category::class);
-            $table->foreignIdFor(Community::class);
+            $table->integer('avatar_id')->default(1);
             $table->timestamps();
         });
         /**
@@ -35,6 +30,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('categories');
-        Schema::dropIfExists('category_community');
     }
 };
